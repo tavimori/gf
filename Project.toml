@@ -1,0 +1,7 @@
+name = "gf"
+uuid = "3bb010dc-1f10-4848-a75b-96d7ff18def2"
+authors = ["Licheng Mao <tavimori@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
