@@ -1,6 +1,11 @@
 # A GF library for Julia (only GF256 is implemented)
 
 ```
+(@v1.5) pkg> add https://github.com/tavimori/gf
+    Cloning git-repo `https://github.com/tavimori/gf`
+   Updating git-repo `https://github.com/tavimori/gf`
+   Updating registry at `~/.julia/registries/General`
+######################################################################## 100.0%
 julia> using gf
 
 julia> a = rand(0:255,3,3)
