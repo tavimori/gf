@@ -1,26 +1,22 @@
 module gf
 
-
 using LinearAlgebra
+
 include("DivTable8.jl")
 include("MulTable8.jl")
 
 export GF, rank, rref_with_pivots!
 
-
-struct GF
+struct GF <: Number
     x::Int64
+    function GF(x::Integer)
+        if x > 255 || x < 0
+            error("the field only supports 0-255")
+        end
+        return new(x)
+    end
 end
 
-# zero
-Base.zero(::GF)::GF = GF(0)
-Base.zero(::Type{GF})::GF = GF(0)
-# one
-Base.one(::GF)::GF = GF(1)
-Base.one(::Type{GF})::GF = GF(1)
-
-# equality
-Base.:(==)(a::GF, b::GF)::Bool = a.x == b.x
 # unary plus
 Base.:(+)(a::GF) = a
 # unary minus 
@@ -33,8 +29,9 @@ Base.:-(a::GF, b::GF)::GF = GF(a.x ⊻ b.x)
 # abs
 Base.:abs(a::GF)::Integer = a == GF(0) ? 0 : 1
 
-# FIXME: norm 
+# # FIXME: this is a trivial norm, perhaps should implement a general p-norm? 
 LinearAlgebra.:norm(a::GF) = a == GF(0) ? 0 : 1
+
 function LinearAlgebra.:rank(A::AbstractArray{GF,2}) 
     isempty(A) && return 0 # 0-dimensional case
     # s = svdvals(A)
@@ -44,29 +41,11 @@ function LinearAlgebra.:rank(A::AbstractArray{GF,2})
     return length(p)
 end
 
-Base.:iterate(x::GF) = (x, nothing)
-Base.:iterate(x::GF, ::Any) = nothing
-Base.:length(x::GF) = 1
-
-function mul(a::GF, b::GF)::GF
-    if a.x == 0 | b.x == 0
-        return GF(0)
-    end
-    try 
-        return GF(mulTable8[a.x << 8 | b.x + 1])
-    catch e
-        println("GF(256) symbol must be less than 256!")
-        bt = backtrace()
-        msg = sprint(showerror, e, bt)
-        println(msg)
-    end
-end
-
-# binary multiplication
-Base.:*(a::GF, b::GF)::GF = mul(a, b)
+# # binary multiplication
+Base.:*(a::GF, b::GF)::GF = GF(mulTable8[a.x << 8 | b.x + 1])
 Base.:/(a::GF, b::GF)::GF = GF(divTable8[a.x << 8 | b.x + 1])
 
-# modified from https://github.com/blegat/RowEchelon.jl/blob/master/src/RowEchelon_with_pivots.jl
+# # modified from https://github.com/blegat/RowEchelon.jl/blob/master/src/RowEchelon_with_pivots.jl
 function rref_with_pivots!(A::Matrix{T}, ɛ=T <: Union{Rational,Integer} ? 0 : eps(norm(A,Inf))) where T
     nr, nc = size(A)
     pivots = Vector{Int64}()
